@@ -1,0 +1,154 @@
+---
+title: "Tidying and Transforming Data"
+author: "[Kleber Perez - `r format(Sys.Date(), '%B %d, %Y')`](https://www.linkedin.com/in/kleberperez/)" 
+output:
+  html_document:
+    theme: darkly
+    highlight: pygments
+    css: ./w5css.css
+---
+
+<div class="jumbotron jumbotron-fluid">
+ [Data Source:  Numbersense, Kaiser Fung, McGraw Hill, 2013](http://www.kaiserfung.com/books)
+
+  <div class="img-fluid ">
+
+```{r echo=FALSE, fig.cap="", out.width = '100%', out.height='100%'}
+knitr::include_graphics("images/arrivalDelays.png")
+
+library(tidyr)
+library(dplyr)
+library(kableExtra)
+library(plotly)
+```
+
+  </div>
+</div>
+
+## Assignment
+<br />
+
+(1) Create a .CSV file (or optionally, a MySQL database!) that includes all of the information above.
+
+## Load Data
+
+> 1.1 Load CSV file 
+      Load CSV file from desktop and validate it using Head.
+
+```{r}
+uD <-  read.csv(paste0("C:/Users/Kleber/Documents/MSDS2019/DATA607/Week5/arrivalDelays.csv"), header=T)
+kable(uD) %>%
+  kable_styling() %>%
+  scroll_box()
+
+```
+
+<br /><br />
+
+(2) Read CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data.
+
+## Tidy Data
+
+> 2.1 Tidy Data - a)
+      Untidy dataset by gathering the destination Column
+
+```{r}
+uD <- uD %>% gather(Destination, n, Los.Angeles:Seattle)
+kable(uD) %>%
+  kable_styling() %>%
+  scroll_box(height = "195px")
+```
+
+<br />
+
+> 2.2 Tidy Data - b) Create column names from Categorical StatusTh to make the untidy dataset to tidy dataset variales.
+
+```{r}
+tD <- uD %>% spread(Status, n)
+kable(tD) %>%
+  kable_styling() %>%
+  scroll_box(height = "195px")
+```
+
+<br /><br />
+
+(3) Perform analysis to compare the arrival delays for the two airlines.
+
+## Analysis
+
+> 3.1 Probability - 
+      Add onTimeProbability and DelayedProbability columns to tidy dataset
+
+```{r}
+tD$onTimeProbability <- round((tD$onTime / (tD$delayed + tD$onTime)), digits = 3)
+tD$DelayedProbability <- round((tD$delayed / (tD$delayed + tD$onTime)), digits = 3)
+kable(tD) %>%
+  kable_styling() %>%
+  scroll_box(height = "195px")
+```
+
+<br /><br />
+
+> 3.2 Summarize Data - 
+      Below we have summarized data on the basis of On time Probability.
+
+```{r}
+summary(tD)
+```
+
+<br /><br />
+
+(4) Your code should be in an R Markdown file, posted to rpubs.com, and should include narrative descriptions of your data cleanup work, analysis, and conclusions.
+
+## Plots {.tabset .tabset-fade}
+
+> Charts - 
+      The charts below show that Phoenix has best on time probability for both AirLines and San Francisco has least on time probability for both Airlines.
+
+### Point chart 
+
+```{r}
+sc <- ggplot(tD, aes(x = Destination , y = onTimeProbability))  + geom_point(aes(color = onTimeProbability, size = onTimeProbability, shape = factor(AirLine))) +  scale_colour_gradient(low = "#F0F8FF")
+ggplotly(sc)
+```
+
+### Line chart
+
+```{r}
+ggplot(tD, aes(x = Destination, y = onTimeProbability, color = DelayedProbability)) +
+  geom_line() +  scale_colour_gradient(low = "#db9833") +
+  expand_limits(x = 0)
+```
+
+### Bar chart
+
+```{r}
+ggplot(tD, aes(x = Destination, y = onTimeProbability)) +
+  geom_col(aes(colour = DelayedProbability)) +
+  scale_colour_gradientn(colours = terrain.colors(10))
+```
+
+##
+
+<br /><br />
+
+* * *
+
+<br />
+
+> *Please email to: * <a href="mailto:kleber.perez@live.com">kleber.perez@live.com</a> *for any suggestion.*
+
+<p>&nbsp;
+   &nbsp;
+</p>
+
+<footer class="border-top text-muted fixed-bottom">
+
+        DATA607 Assignment - MSDS 2019 Program.
+
+</footer>
+<p>&nbsp;</p>
+
+\textbf{Text ignored: END of other links}
+
+
